@@ -1,7 +1,7 @@
 
 
 import { newArrayProto } from './array'
-
+import Dep from './dep'
 class Observer {
   constructor(data) {
     //Object.defineProperty只能劫持已经存在的属性(vue里会为此单独写一些API， $set $delete)
@@ -28,15 +28,21 @@ class Observer {
 }
 
 export function defineReactive(target, key, value) {
-
+  let dep = new Dep() //每一个属性都有一个dep
   observe(value)
   Object.defineProperty(target, key, {
     get() {//取值的时候会执行get
+      console.log('取值')
+      console.log(key)
+      if (Dep.target) {
+        dep.depend()//让这个属性的收集器记住当前的watcher
+      }
       return value
     },
     set(newValue) {//修改的时候会执行get
       if (newValue === value) return
       value = newValue
+      dep.notify()//通知更新
     }
   })
 }

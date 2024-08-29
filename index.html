@@ -7,9 +7,10 @@
     <title>Document</title>
   </head>
   <body>
-     <div id="app">
-      <div style="color:red">{{name}}</div>
+     <div id="app" style="color:red;" key="1">
+      <div style="color:red;background:yellow">{{name}}你好{{age}}多少度</div>
       <span>{{age}}</span>
+      <span></span>
      </div>
     <script src="../dist/vue.js"></script>
 
@@ -25,6 +26,12 @@
         }
       })
       vm.$mount('#app')
+      console.log(vm.age)
+      setTimeout(()=>{
+        vm.age=50
+         vm.age=60
+        //  vm._update(vm._render()) //vm
+      },2000)
     </script>
   </body>
 </html>
