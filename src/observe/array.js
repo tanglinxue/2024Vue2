@@ -31,10 +31,14 @@ methods.forEach(method => {
       default:
         break
     }
+    console.log(this)
+    console.log('更新')
     if (inserted) {
       //对新增的内容再次进行观测
       ob.observeArray(inserted)
     }
+    ob.dep.notify()//通知更新
+
     return result
   }
 })

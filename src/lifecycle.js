@@ -36,14 +36,12 @@ function patch(oldVnode, vnode) {
     let newElm = createElm(vnode)
     parentElm.insertBefore(newElm, elm.nextSibing)
     parentElm.removeChild(elm)
-    console.log(newElm)
     return newElm
   }
 }
 
 export function initLifeCycle(Vue) {
   Vue.prototype._update = function (vnode) { //将vnode转成真实dom
-    console.log('update')
     const vm = this;
     const el = vm.$el;
     //patch既有初始化的功能又有更新的逻辑
@@ -80,7 +78,13 @@ export function mountComponent(vm, el) { //这里的el是通过querySelector处�
 }
 
 
-
+export function callHook(vm, hook) {
+  //调用钩子函数
+  const handlers = vm.$options[hook];
+  if (handlers) {
+    handlers.forEach(handler => handler.call(vm))
+  }
+}
 
 //vue核心流程
 //1.创造了响应式数据
