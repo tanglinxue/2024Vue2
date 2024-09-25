@@ -72,10 +72,8 @@ export function generate(el) {
 export function compileToFunction(template) {
   //1.就是将template转化成ast语法树
   let ast = parseHTML(template)
-  console.log(ast)
   //2 ast 语法树变成 render 函数 ,render方法执行后返回的结果就是虚拟DOM
   let code = generate(ast)
-  console.log(code)
   // 3将render 字符串变成 函数
   code = `with(this){return ${code}}`
   let render = new Function(code)//根据代码生成render函数

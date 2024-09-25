@@ -1,52 +1,19 @@
 import { createElementVnode, createTextVnode } from './vnode'
 import Watcher from './observe/watch';
-function createElm(vnode) {
-  let { tag, data, children, text } = vnode;
-  if (typeof tag === 'string') {//标签
-    vnode.el = document.createElement(tag);//这里将真实节点和虚拟节点对应起来，后续如果修改属性了
-    patchProps(vnode.el, data)
-    children.forEach(child => {
-      vnode.el.appendChild(createElm(child))
-    })
-  } else {
-    vnode.el = document.createTextNode(text)
-  }
-  return vnode.el
-}
-
-function patchProps(el, props) {
-  for (let key in props) {
-    if (key === 'style') {
-      for (let styleName in props.style) {
-        el.style[styleName] = props.style[styleName]
-      }
-    } else {
-      el.setAttribute(key, props[key])
-    }
-  }
-
-}
-
-function patch(oldVnode, vnode) {
-  //写的是初渲染流程
-  const isRealElement = oldVnode.nodeType;
-  if (typeof isRealElement) {
-    const elm = oldVnode;//获取真实元素
-    const parentElm = elm.parentNode;//拿到父元素
-    let newElm = createElm(vnode)
-    parentElm.insertBefore(newElm, elm.nextSibing)
-    parentElm.removeChild(elm)
-    return newElm
-  }
-}
+import { patch } from './vnode/patch';
 
 export function initLifeCycle(Vue) {
   Vue.prototype._update = function (vnode) { //将vnode转成真实dom
     const vm = this;
     const el = vm.$el;
-    //patch既有初始化的功能又有更新的逻辑
-    vm.$el = patch(el, vnode)
-
+    const preVnode = vm._vnode;
+    vm._vnode = vnode;//把组件第一次产生的虚拟节点保存到_vnode上
+    if (preVnode) {//之前渲染过了
+      vm.$el = patch(preVnode, vnode)
+    } else {
+      //patch既有初始化的功能又有更新的逻辑
+      vm.$el = patch(el, vnode)
+    }
   }
   Vue.prototype._render = function () {
     const vm = this;
@@ -72,7 +39,6 @@ export function mountComponent(vm, el) { //这里的el是通过querySelector处�
   }
 
   let watcher = new Watcher(vm, updateComponet, true)//true用于标识是一个渲染watcher
-  console.log(watcher)
   //2.根据虚拟DOM产生真实DOM
   //3.插入到el元素中
 }

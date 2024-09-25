@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app" >
+      {{firstname}}
+    </div>
+    <script src="../dist/vue.js"></script>
+
+    <script>
+      const vm = new Vue({
+        el:'#app',
+        data:{
+          firstname:'珠',
+          lastname:'峰'
+        },
+        methods:{
+          fn(newValue,oldValue){
+            console.log(newValue,oldValue,'2')
+          }
+        },
+        watch:{
+          // firstname:'fn',
+          // firstname:[
+          //   (newValue,oldValue)=>{
+          //     console.log(newValue,oldValue,'1')
+          //   },
+          //   (newValue,oldValue)=>{
+          //     console.log(newValue,oldValue,'3')
+          //   }
+          // ]
+          firstname(){
+            console.log(222)
+          }
+        } 
+      })
+      vm.$watch('firstname',(newValue,oldValue)=>{
+          console.log(newValue,oldValue,'测试')
+      })
+      setTimeout(()=>{
+        vm.firstname = 'xxx'
+      },1000)
+    </script>
+  </body>
+</html>

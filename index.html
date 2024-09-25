@@ -15,7 +15,6 @@
     <script>
       Vue.mixin({
          created(){
-          console.log(this.xxx)
           console.log('created1')
         }
       })
@@ -34,13 +33,10 @@
           arr:['eat','drink',['dsd']]
         },
         created(){
-          console.log(this.xxx)
           console.log('created3')
         }
       })
       vm.$mount('#app')
-      console.log('打印')
-      console.log(Vue.options)
       // setTimeout(()=>{
       //   vm.arr[2].push('cccc')
       //   console.log(vm.arr[2].push('你好'))

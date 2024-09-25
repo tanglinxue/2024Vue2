@@ -46,10 +46,6 @@ export function defineReactive(target, key, value) {
 
   Object.defineProperty(target, key, {
     get() {//取值的时候会执行get
-      // console.log('取值')
-      // console.log(key)
-      // console.log(dep)
-      // console.log(childOb)
       if (Dep.target) {
         dep.depend()//让这个属性的收集器记住当前的watcher
         if (childOb) {
@@ -62,8 +58,6 @@ export function defineReactive(target, key, value) {
       return value
     },
     set(newValue) {//修改的时候会执行get
-      // console.log('设置')
-      // console.log(key)
       if (newValue === value) return
       value = newValue
       dep.notify()//通知更新

@@ -1,18 +1,33 @@
 let id = 0;
-import Dep from './dep';
+// import Dep from './dep';
+import { pushTarget, popTarget } from './dep';
 
 //每个属性有一个dep(属性就是被观察者)，watcher就是观察者(属性变化了会通知观察者来更新)  观察者模式
 
 //1.当我们创建渲染watcher的时候我们会把当前的渲染watcher放到Dep.target上
 //2.调用_render()会取值走到get上
 class Watcher {//不同组件有不同的watcher 目前只有一个渲染根实例
-  constructor(vm, fn, options) {
+  constructor(vm, exprOrFn, options, cb) {
     this.id = id++;
     this.renderWatcher = options;//是一个渲染watcher
-    this.getter = fn //getter意味着调用这个函数可以发生取值操作
+    if (typeof exprOrFn === 'string') {
+      this.getter = function () {
+        return vm[exprOrFn]
+      }
+    } else {
+      this.getter = exprOrFn //getter意味着调用这个函数可以发生取值操作
+    }
+
     this.deps = [] //后续我们实现计算属性，和一些清理工作需要用到
     this.depsId = new Set()
-    this.get()
+    this.lazy = options.lazy;
+    this.dirty = this.lazy//缓存值
+    this.cb = cb;
+    this.value = '';
+    this.user = options.user; // 标识是否是用户自己的watcher
+    this.vm = vm
+    this.value = this.lazy ? undefined : this.get()
+
   }
   addDep(dep) {//一个组件对应多个属性，重复的属性不用记录
     let id = dep.id;
@@ -22,18 +37,40 @@ class Watcher {//不同组件有不同的watcher 目前只有一个渲染根实�
       dep.addSub(this)//watcher已经记住了dep了而且去重了，此时让dep也记住watcher
     }
   }
+  evaluate() {
+    this.value = this.get() //获取到用户函数的返回值，并且还要标识为脏
+    this.dirty = false
+  }
   get() {
-    Dep.target = this;//静态属性就是只有一份
-    this.getter()//会去vm上取值
-    Dep.target = null//渲染完毕后就清空
+    pushTarget(this)
+    //Dep.target = this;//静态属性就是只有一份
+    let value = this.getter.call(this.vm)//会去vm上取值
+    //Dep.target = null//渲染完毕后就清空
+    popTarget()
+    return value
+  }
+  depend() {
+    let i = this.deps.length;
+    while (i--) {
+      this.deps[i].depend()//让计算属性watcher也收集渲染watcher
+    }
   }
   update() {
-    //this.get()//重新渲染
-    queueWatcher(this)//把当前的watcher暂存起来
+    if (this.lazy) {
+      //如果是计算属性依赖的值变化了，就标识计算属性是脏值了
+      this.dirty = true
+    } else {
+      //this.get()//重新渲染
+      queueWatcher(this)//把当前的watcher暂存起来
+    }
   }
   run() {
-    console.log('run')
-    this.get()
+    let oldVal = this.value;
+    let newVal = this.get()
+
+    if (this.user) {
+      this.cb.call(this.vm, newVal, oldVal)
+    }
   }
 }
 

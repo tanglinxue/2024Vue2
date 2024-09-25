@@ -17,7 +17,15 @@ LIFECYCLE.forEach(hook => {
     }
   }
 })
-
+strats.components = function (parentVal, childVal) {
+  const res = Object.create(parentVal)
+  if (childVal) {
+    for (let key in childVal) {//返回的是构造的函数的对象，可以拿到父亲原型上的属性，并且将儿子都拷贝到自己身上
+      res[key] = childVal[key]
+    }
+  }
+  return res
+}
 export function mergeOptions(parent, child) {
   const options = {}
   for (let key in parent) {//循环老的
